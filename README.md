@@ -1,4 +1,17 @@
-jiratime
+Atlasian Jira Time Entry
 ========
 
-A Symfony project created on May 21, 2018, 1:39 pm.
+Description
+---
+
+* This project allow you to view Atlasian-Jira Time Entry
+
+Install
+---
+    1- Clone Project : git clone https://github.com/medooch/jiratime.git
+    2- cd jiratime
+    3- composer install
+    4- finish composer install process, add this configuration to the parameters.yml file
+        jira_server: 'elsevier-healthsolutions.atlassian.net'
+        jira_project: 'IC'
+    5- Enjoy ;)
