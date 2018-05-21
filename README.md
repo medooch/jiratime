@@ -12,8 +12,8 @@ Install
     2- cd jiratime
     3- composer install
     4- finish composer install process, add this configuration to the parameters.yml file
-        jira_server: 'elsevier-healthsolutions.atlassian.net'
-        jira_project: 'IC'
+        jira_server: 'id.atlassian.net'
+        jira_project: 'defaultProject to view'
     5- Enjoy ;)
     
 
