@@ -65,13 +65,13 @@
                     <tbody>
                     {% for id, logs in periodLog %}
                         <tr id="{{ id }}">
-                            <td><a href="https://elsevier-healthsolutions.atlassian.net/browse/{{ id }}"
+                            <td><a href="https://{{ server }}/browse/{{ id }}"
                                    target="_blank"> {{ id }}</a></td>
                             {% for k, date in dates %}
                                 {% for d in date %}
                                     <td {{ d == 'weekend' ? 'class="timeSpent text-danger"' : 'class="timeSpent text-success"' }}>
                                         {#<a target="_blank" style="font-size: 12px;" class="link-plus"#}
-                                        {#href="https://elsevier-healthsolutions.atlassian.net/secure/CreateWorklog!default.jspa?id={{ id }}">#}
+                                        {#href="https://{{ server }}/secure/CreateWorklog!default.jspa?id={{ id }}">#}
                                         {#<i class="fa fa-plus"></i>#}
                                         {#</a>#}
                                         {% if d in logs|keys %}
@@ -82,7 +82,7 @@
                                                              align="{{ log.author.displayName }}">
                                                         <a target="_blank"
                                                            data-timeSpentSeconds="{{ log.timeSpentSeconds }}"
-                                                           href="https://elsevier-healthsolutions.atlassian.net/browse/{{ id }}?focusedWorklogId={{ log.id }}&page=com.atlassian.jira.plugin.system.issuetabpanels%3Aworklog-tabpanel#worklog-{{ log.id }}"> {{ log.timeSpent }}</a>
+                                                           href="https://{{ server }}/browse/{{ id }}?focusedWorklogId={{ log.id }}&page=com.atlassian.jira.plugin.system.issuetabpanels%3Aworklog-tabpanel#worklog-{{ log.id }}"> {{ log.timeSpent }}</a>
                                                     </li>
                                                 {% endfor %}
                                             </ul>
