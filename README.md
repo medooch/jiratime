@@ -15,3 +15,12 @@ Install
         jira_server: 'elsevier-healthsolutions.atlassian.net'
         jira_project: 'IC'
     5- Enjoy ;)
+    
+
+# Login screenshot
+![Alt text](https://github.com/medooch/jiratime/web/images/login.png?raw=true "Login screen")
+
+
+# TimeEntry screenshot
+![Alt text](https://github.com/medooch/jiratime/web/images/time.png?raw=true "Login screen")
+
