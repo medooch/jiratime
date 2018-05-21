@@ -18,9 +18,12 @@ Install
     
 
 # Login screenshot
-![Alt text](/medooch/jiratime/blob/master/web/images/login.png?raw=true "Login screen")
+![Screenshot](https://user-images.githubusercontent.com/12831762/40329893-0ff0a08e-5d43-11e8-8055-88d455abed79.png)
 
 
 # TimeEntry screenshot
-![Alt text](/medooch/jiratime/blob/master/web/images/login.png?raw=true "Login screen")
+![Screenshot](https://user-images.githubusercontent.com/12831762/40329900-1a784c5a-5d43-11e8-9220-0e9ea756eb87.png)
+
+
+
 
