@@ -1,0 +1,121 @@
+{% extends 'base.html.twig' %}
+{% block title %}TimeReport{% endblock %}
+{% block stylesheets %}
+    <style>
+        .timeSpent {
+            /*cursor: pointer;*/
+        }
+
+        .timeSpent:hover {
+            /*background-color: #5eb5e0;*/
+        }
+        td{
+            width: 115px;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Jira Time Entry</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">Home</a></li>
+                <li><a href="{{ url('logout') }}">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        {{ form_start(form) }}
+        <div class="panel">
+            <div class="panel-heading">
+                <h4>Filter</h4>
+            </div>
+            <div class="panel-body">
+                {% for child in form %}
+                    <div class="col-md-2">
+                        {{ form_label(child) }}
+                        {{ form_widget(child) }}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="panel-footer">
+                <a href="{{ url('time_report') }}" class="btn btn-sm btn-default">Reset</a>
+                <button type="submit" class="btn btn-sm btn-success">Submit</button>
+            </div>
+        </div>
+        {{ form_end(form) }}
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive-lg">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <td>Story</td>
+                        {% for key, date in dates %}
+                            {% for d in date %}
+                                <td {{ d == 'weekend' ? 'class="text-danger"' : 'class="text-success"' }}>{{ d }}</td>
+                            {% endfor %}
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for id, logs in periodLog %}
+                        <tr id="{{ id }}">
+                            <td><a href="https://elsevier-healthsolutions.atlassian.net/browse/{{ id }}"
+                                   target="_blank"> {{ id }}</a></td>
+                            {% for k, date in dates %}
+                                {% for d in date %}
+                                    <td {{ d == 'weekend' ? 'class="timeSpent text-danger"' : 'class="timeSpent text-success"' }}>
+                                        {#<a target="_blank" style="font-size: 12px;" class="link-plus"#}
+                                        {#href="https://elsevier-healthsolutions.atlassian.net/secure/CreateWorklog!default.jspa?id={{ id }}">#}
+                                        {#<i class="fa fa-plus"></i>#}
+                                        {#</a>#}
+                                        {% if d in logs|keys %}
+                                            <ul class="list-group">
+                                                {% for hour, log in logs[d] %}
+                                                    <li class="list-group-item">
+                                                        <img width="32" src="{{ log.author.avatarUrls['32x32'] }}"
+                                                             align="{{ log.author.displayName }}">
+                                                        <a target="_blank"
+                                                           data-timeSpentSeconds="{{ log.timeSpentSeconds }}"
+                                                           href="https://elsevier-healthsolutions.atlassian.net/browse/{{ id }}?focusedWorklogId={{ log.id }}&page=com.atlassian.jira.plugin.system.issuetabpanels%3Aworklog-tabpanel#worklog-{{ log.id }}"> {{ log.timeSpent }}</a>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+
+                    <tfoot>
+                    <tr>
+                        <td>Total</td>
+                        {{ display_totals(periodLog, dates)|raw }}
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block javascripts %}
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        $(document).ready(function (e) {
+            $('select').selectpicker({
+                style: 'btn-info',
+                size: 4
+            });
+        });
+    </script>
+{% endblock javascripts %}

@@ -1,0 +1,18 @@
+services:
+    jira.api:
+        class: App\JiraBundle\Services\JiraService
+        arguments:
+            - '@service_container'
+
+    filter.type:
+        class: App\JiraBundle\Form\FilterForm
+        arguments:
+            - '@jira.api'
+        tags:
+            -
+               name: form.type
+    twig.extension:
+        class: App\JiraBundle\Twig\Extension
+        tags:
+            -
+               name: twig.extension

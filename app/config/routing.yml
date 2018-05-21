@@ -1,0 +1,4 @@
+app_jira:
+    resource: "@AppJiraBundle/Controller/"
+    type:     annotation
+    prefix:   /
