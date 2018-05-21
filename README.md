@@ -22,7 +22,7 @@ Install
 
 
 # TimeEntry screenshot
-![Screenshot](https://user-images.githubusercontent.com/12831762/40329900-1a784c5a-5d43-11e8-9220-0e9ea756eb87.png)
+![Screenshot](https://user-images.githubusercontent.com/12831762/40330047-a0653e86-5d43-11e8-9e0e-37d2f4ef56c7.png)
 
 
 
