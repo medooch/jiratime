@@ -96,14 +96,14 @@ class JiraService
         $curl = $this->initCurl();
         $link = "https://$this->server/rest/api/2/search?startIndex=0&jql=";
         if ($assignee) {
-            $link .= 'assignee+%3D+' . $assignee . '+and+';
+            $link .= 'worklogAuthor=' . $assignee . '&';
         }
-        $link .= "project+%3D+$project+and+created+%3C+$toDate+and+updated+%3E+$fromDate+" .
-            "and+timespent+%3E+0&fields=key";
+        $link .= "project=$project&worklogDate>=$toDate&worklogDate<=$fromDate&timespent>=0&fields=key,worklog";
 
         curl_setopt($curl, CURLOPT_URL, $link);
 
         $issues = json_decode(curl_exec($curl), true);
+        /** @var array $periodLog */
         $periodLog = [];
         if ($issues) {
             foreach ($issues['issues'] as $issue) {
@@ -115,14 +115,13 @@ class JiraService
                 if ($workLogs) {
                     foreach ($workLogs['worklogs'] as $entry) {
                         $shortDate = substr($entry['started'], 0, 10);
-                        $time = substr($entry['started'], 11, 8);
+                        $time = substr($entry['started'], 11, 5);
                         if ($shortDate >= $fromDate && $shortDate <= $toDate)
                             $periodLog[$key][$shortDate][$time] = $entry;
                     }
                 }
             }
         }
-
         return $periodLog;
     }
 

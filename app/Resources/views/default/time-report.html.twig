@@ -78,9 +78,11 @@
                                                 <li class="list-group-item">
                                                     <img width="32" src="{{ log.author.avatarUrls['32x32'] }}"
                                                          align="{{ log.author.displayName }}">
-                                                    <a target="_blank"
+                                                    <a target="_blank" data-toggle="tooltip" data-placement="top"
+                                                       title="{{ hour }}"
                                                        data-timeSpentSeconds="{{ log.timeSpentSeconds }}"
-                                                       href="https://{{ server }}/browse/{{ id }}?focusedWorklogId={{ log.id }}&page=com.atlassian.jira.plugin.system.issuetabpanels%3Aworklog-tabpanel#worklog-{{ log.id }}"> {{ log.timeSpent }}</a>
+                                                       href="https://{{ server }}/browse/{{ id }}?focusedWorklogId={{ log.id }}&page=com.atlassian.jira.plugin.system.issuetabpanels%3Aworklog-tabpanel#worklog-{{ log.id }}"> {{ log.timeSpent }}
+                                                    </a>
                                                 </li>
                                             {% endfor %}
                                         </ul>
@@ -113,6 +115,9 @@
                 style: 'btn-info',
                 size: 4
             });
+            $(function () {
+                $('[data-toggle="tooltip"]').tooltip()
+            })
         });
     </script>
 {% endblock javascripts %}
