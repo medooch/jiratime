@@ -92,12 +92,11 @@ class DefaultController extends Controller
 
         $diff = $startDate->diff($endDate);
 
-        $dates = [];
-        $dates[$startDate->format('N') >= 6 ? 'weekend' : 'notWeekend'][] = $startDate->format('Y-m-d');
+        $dates[$startDate->format('Y-m-d')] = $startDate->format('N') >= 6;
         for ($i = 1; $i <= $diff->d; $i++) {
             $startDate = new \DateTime($fromDate);
             $newDate = $startDate->modify('+' . $i . ' days');
-            $dates[$newDate->format('N') >= 6 ? 'weekend' : 'notWeekend'][] = $newDate->format('Y-m-d');
+            $dates[$newDate->format('Y-m-d')] = $newDate->format('N') >= 6;
         }
         $periodLog = $this->get('jira.api')->workLog($form->get('user')->getData(), $project, $toDate, $fromDate);
 

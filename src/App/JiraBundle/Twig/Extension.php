@@ -36,13 +36,19 @@ class Extension extends \Twig_Extension
     {
         $totals = [];
 
-        foreach ($dates as $k => $date) {
-            foreach ($date as $d) {
-                $totals[$d] = 0;
-            }
+        /**
+         * prepare total array for all days
+         * @var string $date
+         * @var  bool $isWeekend
+         */
+        foreach ($dates as $date => $isWeekend) {
+            $totals[$date] = 0;
         }
 
-
+        /**
+         * calculate totals per day
+         * @var array $logs
+         */
         foreach ($periodLog as $logs) {
             foreach ($logs as $day => $hours) {
                 foreach ($hours as $hour) {
@@ -56,14 +62,16 @@ class Extension extends \Twig_Extension
         }
         ksort($totals);
 
+        /**
+         * HTML output
+         * @var string $output
+         */
         $output = '';
-        foreach ($dates as $k => $date) {
-            foreach ($date as $d) {
-                if (array_key_exists($d, $totals)) {
-                    $output .= '<td><ul class="list-group"><li class="list-group-item">' . $this->secToHR($totals[$d]) . '</li></ul></td>';
-                } else {
-                    $output .= '<td><ul class="list-group"><li class="list-group-item">0h 0m</li></ul></td>';
-                }
+        foreach ($dates as $date => $isWeekend) {
+            if (array_key_exists($date, $totals)) {
+                $output .= '<td><ul class="list-group"><li class="list-group-item">' . $this->secToHR($totals[$date]) . '</li></ul></td>';
+            } else {
+                $output .= '<td><ul class="list-group"><li class="list-group-item">0h 0m</li></ul></td>';
             }
         }
         return $output;
