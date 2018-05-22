@@ -93,31 +93,36 @@ class JiraService
      */
     public function workLog(string $assignee = null, string $project, string $toDate, string $fromDate)
     {
-        $curl = $this->initCurl();
-        $link = "https://$this->server/rest/api/2/search?startIndex=0&jql=";
+        $dateStartF = str_replace('-', '%2F', $fromDate);
+        $dateEndF = str_replace('-', '%2F', $toDate);
+        $jql = "jql=project%20%3D%20" . $project . "%20and%20worklogDate%20%3E%3D%20'" . $dateStartF . "'%20and%20worklogDate%20%3C%3D%20'" . $dateEndF . "'%20and%20timespent%20%3E%200";
+
         if ($assignee) {
-            $link .= 'worklogAuthor=' . $assignee . '&';
+            $jql .= '%20and%20worklogAuthor=' . $assignee;
         }
-        $link .= "project=$project&worklogDate>=$toDate&worklogDate<=$fromDate&timespent>=0&fields=key,worklog";
+        $curl = $this->initCurl();
+        $link = "https://$this->server/rest/api/2/search?" . $jql . '&fields=key,worklog';
 
         curl_setopt($curl, CURLOPT_URL, $link);
 
-        $issues = json_decode(curl_exec($curl), true);
+        $issues = (array)json_decode(curl_exec($curl), true);
         /** @var array $periodLog */
         $periodLog = [];
-        if ($issues) {
+        if (isset($issues['issues'])) {
+            /** @var array $issue */
             foreach ($issues['issues'] as $issue) {
                 $key = $issue['key'];
-                curl_setopt($curl, CURLOPT_URL,
-                    "https://$this->server/rest/api/2/issue/$key/worklog");
+                curl_setopt($curl, CURLOPT_URL, "https://$this->server/rest/api/2/issue/$key/worklog");
 
                 $workLogs = json_decode(curl_exec($curl), true);
                 if ($workLogs) {
                     foreach ($workLogs['worklogs'] as $entry) {
-                        $shortDate = substr($entry['started'], 0, 10);
-                        $time = substr($entry['started'], 11, 5);
-                        if ($shortDate >= $fromDate && $shortDate <= $toDate)
-                            $periodLog[$key][$shortDate][$time] = $entry;
+                        if ($assignee === $entry['author']['key']) {
+                            $shortDate = substr($entry['started'], 0, 10);
+                            $time = substr($entry['started'], 11, 5);
+                            if ($shortDate >= $fromDate && $shortDate <= $toDate)
+                                $periodLog[$key][$shortDate][$time] = $entry;
+                        }
                     }
                 }
             }
