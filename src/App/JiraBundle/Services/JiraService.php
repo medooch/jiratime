@@ -115,10 +115,9 @@ class JiraService
                 if ($workLogs) {
                     foreach ($workLogs['worklogs'] as $entry) {
                         $shortDate = substr($entry['started'], 0, 10);
-                        $created = substr($entry['created'], 0, 10);
-                        $time = substr($entry['created'], 11, 8);
+                        $time = substr($entry['started'], 11, 8);
                         if ($shortDate >= $fromDate && $shortDate <= $toDate)
-                            $periodLog[$key][$created][$time] = $entry;
+                            $periodLog[$key][$shortDate][$time] = $entry;
                     }
                 }
             }
