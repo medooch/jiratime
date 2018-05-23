@@ -28,6 +28,17 @@ class Extension extends \Twig_Extension
     }
 
     /**
+     * @return array
+     */
+    public function getFilters()
+    {
+        return [
+            new \Twig_SimpleFilter('sec_to_hours', [$this, 'secToHR']),
+
+        ];
+    }
+
+    /**
      * @param array $periodLog
      * @param array $dates
      * @return string
@@ -68,11 +79,7 @@ class Extension extends \Twig_Extension
          */
         $output = '';
         foreach ($dates as $date => $isWeekend) {
-            if (array_key_exists($date, $totals)) {
-                $output .= '<td><ul class="list-group"><li class="list-group-item">' . $this->secToHR($totals[$date]) . '</li></ul></td>';
-            } else {
-                $output .= '<td><ul class="list-group"><li class="list-group-item">0h 0m</li></ul></td>';
-            }
+            $output .= array_key_exists($date, $totals) ? $this->secToHR($totals[$date]) : $this->secToHR(0);
         }
         return $output;
     }
@@ -81,10 +88,10 @@ class Extension extends \Twig_Extension
      * @param $seconds
      * @return string
      */
-    private function secToHR($seconds)
+    public function secToHR($seconds)
     {
         $hours = floor($seconds / 3600);
         $minutes = floor(($seconds / 60) % 60);
-        return "$hours h : $minutes m";
+        return '<td><ul class="list-group"><li class="list-group-item">' . "$hours h : $minutes m" . '</li></ul></td>';
     }
 }

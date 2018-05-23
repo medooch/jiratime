@@ -94,6 +94,14 @@
                     </tbody>
 
                     <tfoot>
+                    {#{% for username, user in users %}#}
+                        {#<tr>#}
+                            {#<td>{{ username|upper }}</td>#}
+                            {#{% for d, isWeekend in dates %}#}
+                                {#{{ d in user|keys ? user[d]|sec_to_hours|raw : '<td></td>'|raw }}#}
+                            {#{% endfor %}#}
+                        {#</tr>#}
+                    {#{% endfor %}#}
                     <tr>
                         <td>Total</td>
                         {{ display_totals(periodLog, dates)|raw }}

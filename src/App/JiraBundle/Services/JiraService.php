@@ -11,9 +11,11 @@
 
 namespace App\JiraBundle\Services;
 
+use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\User\User;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
 /**
  * Class JiraService
@@ -78,10 +80,8 @@ class JiraService
         $curl = $this->initCurl();
         $link = "https://$this->server/rest/api/2/project";
 
-        curl_setopt($curl, CURLOPT_URL, $link);
-        $projects = json_decode(curl_exec($curl), true);
 
-        return $projects;
+        return $this->caching($link, $curl);
     }
 
     /**
@@ -103,31 +103,34 @@ class JiraService
         $curl = $this->initCurl();
         $link = "https://$this->server/rest/api/2/search?" . $jql . '&fields=key,worklog';
 
-        curl_setopt($curl, CURLOPT_URL, $link);
+        $issues = $this->caching($link, $curl);
 
-        $issues = (array)json_decode(curl_exec($curl), true);
-        /** @var array $periodLog */
-        $periodLog = [];
+        /** @var array $data */
+        $data = ['worklog' => [], 'users' => []];
         if (isset($issues['issues'])) {
             /** @var array $issue */
             foreach ($issues['issues'] as $issue) {
                 $key = $issue['key'];
-                curl_setopt($curl, CURLOPT_URL, "https://$this->server/rest/api/2/issue/$key/worklog");
+                $curl = $this->initCurl();
 
-                $workLogs = json_decode(curl_exec($curl), true);
+                $workLogs = $this->caching("https://$this->server/rest/api/2/issue/$key/worklog", $curl);
                 if ($workLogs) {
                     foreach ($workLogs['worklogs'] as $entry) {
-                        if ($assignee === $entry['author']['key']) {
+                        if ($assignee && $assignee === $entry['author']['key'] || !$assignee) {
                             $shortDate = substr($entry['started'], 0, 10);
                             $time = substr($entry['started'], 11, 5);
-                            if ($shortDate >= $fromDate && $shortDate <= $toDate)
-                                $periodLog[$key][$shortDate][$time] = $entry;
+                            $data['users'][$entry['author']['name']][$shortDate] = 0;
+                            if ($shortDate >= $fromDate && $shortDate <= $toDate) {
+                                $data['worklog'][$key][$shortDate][$time] = $entry;
+
+                                $data['users'][$entry['author']['name']][$shortDate] += $entry['timeSpentSeconds'];
+                            }
                         }
                     }
                 }
             }
         }
-        return $periodLog;
+        return $data;
     }
 
     /**
@@ -137,7 +140,8 @@ class JiraService
      */
     public function authenticate($username, $password) : bool
     {
-        $ch = curl_init('https://' . $this->server . '/rest/auth/1/session');
+        $url = 'https://' . $this->server . '/rest/auth/1/session';
+        $ch = curl_init($url);
         $jsonData = array('username' => $username, 'password' => $password);
         $jsonDataEncoded = json_encode($jsonData);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonDataEncoded);
@@ -148,10 +152,7 @@ class JiraService
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
 
-        $result = curl_exec($ch);
-        curl_close($ch);
-
-        $result = json_decode($result, true);
+        $result = $this->caching($url, $ch);
         if ($result) {
             if (!isset($result['errorMessages'][0])) {
                 setcookie($result['session']['name'], $result['session']['value'], time() + (86400 * 30), "/");
@@ -159,5 +160,28 @@ class JiraService
             }
         }
         return false;
+    }
+
+    /**
+     * @param $url
+     * @param $curl
+     * @return array
+     */
+    private function caching($url, $curl) : array
+    {
+        $md5 = md5($url);
+        $cache = new FilesystemAdapter('', 0, __DIR__ . '/../../../../var/ws');
+        $item = $cache->getItem($md5);
+
+        if (!$item->isHit()) {
+            $item->expiresAfter(\DateInterval::createFromDateString('10 minutes'));
+            curl_setopt($curl, CURLOPT_URL, $url);
+            $result = (array)json_decode(curl_exec($curl), true);
+            curl_close($curl);
+
+            $item->set($result);
+            $cache->save($item);
+        }
+        return $item->get();
     }
 }

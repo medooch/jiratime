@@ -90,18 +90,19 @@ class DefaultController extends Controller
         $startDate = new \DateTime($fromDate);
         $endDate = new \DateTime($toDate);
 
-        $diff = $startDate->diff($endDate);
+        $diff = $endDate->diff($startDate);
 
         $dates[$startDate->format('Y-m-d')] = $startDate->format('N') >= 6;
-        for ($i = 1; $i <= $diff->d; $i++) {
+        for ($i = 1; $i <= $diff->days; $i++) {
             $startDate = new \DateTime($fromDate);
             $newDate = $startDate->modify('+' . $i . ' days');
             $dates[$newDate->format('Y-m-d')] = $newDate->format('N') >= 6;
         }
-        $periodLog = $this->get('jira.api')->workLog($form->get('user')->getData(), $project, $toDate, $fromDate);
+        $workLog = $this->get('jira.api')->workLog($form->get('user')->getData(), $project, $toDate, $fromDate);
 
         return $this->render('default/time-report.html.twig', [
-            'periodLog' => $periodLog,
+            'periodLog' => $workLog['worklog'],
+            'users' => $workLog['users'],
             'form' => $form->createView(),
             'dates' => $dates
         ]);
